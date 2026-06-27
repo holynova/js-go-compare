@@ -1,0 +1,17 @@
+{
+  "name": "js-go-compare",
+  "version": "1.0.0",
+  "description": "JavaScript 和 Go 对比学习网站",
+  "private": false,
+  "scripts": {
+    "start": "python3 -m http.server 5173",
+    "check": "node -e \"new Function(require('fs').readFileSync('index.html','utf8').match(/<script>\\\\n([\\\\s\\\\S]*)<\\\\/script>\\\\n<\\\\/body>/)[1]); console.log('ok')\""
+  },
+  "keywords": [
+    "javascript",
+    "go",
+    "learning",
+    "github-pages"
+  ],
+  "license": "MIT"
+}

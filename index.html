@@ -1,0 +1,2285 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JS vs Go 对比学习手册</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <style>
+    :root {
+      --bg-slate-900: #0f172a;
+      --bg-slate-950: #020617;
+      --surface-white: #ffffff;
+      --surface-slate-50: #f8fafc;
+      --surface-slate-100: #f1f5f9;
+      --border-slate-200: #e2e8f0;
+      --border-slate-700: #334155;
+      --text-slate-50: #f8fafc;
+      --text-slate-900: #0f172a;
+      --text-slate-700: #334155;
+      --text-slate-500: #64748b;
+      --text-slate-400: #94a3b8;
+      --indigo-500: #6366f1;
+      --indigo-600: #4f46e5;
+      --sky-400: #38bdf8;
+      --emerald-500: #10b981;
+      --amber-500: #f59e0b;
+      --rose-500: #f43f5e;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+      --radius-xl: 12px;
+      --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+      --shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.1), 0 1px 2px -1px rgba(15, 23, 42, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -4px rgba(15, 23, 42, 0.1);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 88px;
+    }
+
+    body {
+      margin: 0;
+      background: var(--surface-slate-50);
+      background-size: 24px 24px;
+      color: var(--text-slate-900);
+      font-family: var(--sans);
+      letter-spacing: 0;
+    }
+
+    button, input, select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--border-slate-200);
+      background: rgba(255, 255, 255, .92);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: auto minmax(220px, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      max-width: 1560px;
+      min-height: 72px;
+      margin: 0 auto;
+      padding: 12px 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 218px;
+    }
+
+    .topbar {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .repo-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      border: 1px solid var(--border-slate-200);
+      border-radius: var(--radius-lg);
+      background: var(--surface-white);
+      color: var(--text-slate-900);
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 20px;
+      padding: 0 14px;
+      text-decoration: none;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .repo-link:hover {
+      border-color: var(--indigo-500);
+      color: var(--indigo-600);
+    }
+
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--border-slate-200);
+      border-radius: var(--radius-lg);
+      background: var(--bg-slate-900);
+      color: var(--sky-400);
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.1;
+      font-weight: 800;
+    }
+
+    .brand p {
+      margin: 3px 0 0;
+      color: var(--text-slate-500);
+      font-size: 12px;
+    }
+
+    .search-row {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) 150px 150px 150px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .field,
+    .select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--border-slate-200);
+      border-radius: var(--radius-lg);
+      background: var(--surface-white);
+      color: var(--text-slate-900);
+      outline: none;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .field {
+      padding: 0 12px;
+    }
+
+    .select {
+      padding: 0 10px;
+    }
+
+    .field:focus,
+    .select:focus {
+      border-color: var(--indigo-500);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, .18);
+    }
+
+    .toolbar-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      min-height: 42px;
+      border: 1px solid var(--border-slate-200);
+      border-radius: var(--radius-lg);
+      background: var(--surface-white);
+      color: var(--text-slate-900);
+      padding: 0 12px;
+      white-space: nowrap;
+      box-shadow: var(--shadow-sm);
+      transition: transform 150ms ease-in-out, border-color 150ms ease-in-out, background 150ms ease-in-out;
+    }
+
+    .btn:hover {
+      border-color: var(--indigo-500);
+    }
+
+    .btn:active {
+      transform: scale(.98);
+    }
+
+    .btn.primary {
+      border-color: var(--indigo-600);
+      background: var(--indigo-500);
+      color: #fff;
+    }
+
+    .btn.primary:hover {
+      background: var(--indigo-600);
+    }
+
+    .mobile-only {
+      display: none;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 248px minmax(0, 1fr) 286px;
+      gap: 18px;
+      max-width: 1560px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .side,
+    .right-rail {
+      position: sticky;
+      top: 91px;
+      height: calc(100dvh - 110px);
+      overflow: auto;
+      align-self: start;
+      border: 1px solid var(--border-slate-200);
+      border-radius: var(--radius-xl);
+      background: var(--surface-white);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .side-head,
+    .rail-block {
+      padding: 14px;
+      border-bottom: 1px solid var(--border-slate-200);
+    }
+
+    .side-head strong,
+    .rail-block h2,
+    .section-title h2 {
+      margin: 0;
+      font-size: 13px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-slate-700);
+    }
+
+    .side-head p,
+    .rail-block p {
+      margin: 6px 0 0;
+      color: var(--text-slate-500);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .toc {
+      display: grid;
+      padding: 8px;
+      gap: 4px;
+    }
+
+    .toc button {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid transparent;
+      border-radius: var(--radius-lg);
+      background: transparent;
+      color: var(--text-slate-900);
+      padding: 7px 8px;
+      text-align: left;
+      transition: background 150ms ease-in-out, border-color 150ms ease-in-out, transform 150ms ease-in-out;
+    }
+
+    .toc button:hover,
+    .toc button.active {
+      border-color: rgba(99, 102, 241, .28);
+      background: rgba(99, 102, 241, .08);
+    }
+
+    .toc-num,
+    .topic-count,
+    .tag {
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .toc-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    .main {
+      min-width: 0;
+    }
+
+    .intro {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr);
+      gap: 18px;
+      border: 1px solid var(--border-slate-200);
+      border-radius: var(--radius-xl);
+      background: var(--surface-white);
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .intro h2 {
+      max-width: 780px;
+      margin: 0;
+      font-size: clamp(30px, 5vw, 62px);
+      line-height: .98;
+      letter-spacing: 0;
+      font-weight: 800;
+    }
+
+    .intro p {
+      max-width: 68ch;
+      margin: 14px 0 0;
+      color: var(--text-slate-500);
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .stat {
+      min-height: 102px;
+      border: 1px solid var(--border-slate-200);
+      border-radius: var(--radius-xl);
+      background: var(--surface-slate-50);
+      padding: 12px;
+    }
+
+    .stat b {
+      display: block;
+      font-family: var(--mono);
+      font-size: 24px;
+      line-height: 1;
+      color: var(--indigo-600);
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 8px;
+      color: var(--text-slate-500);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .matrix-cell {
+      border: 1px solid var(--border-slate-200);
+      border-radius: var(--radius-xl);
+      background: var(--surface-white);
+      padding: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .matrix-cell h3 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      color: var(--text-slate-900);
+    }
+
+    .matrix-cell p {
+      margin: 0;
+      color: var(--text-slate-500);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .section {
+      border: 1px solid var(--border-slate-200);
+      border-radius: var(--radius-xl);
+      background: var(--surface-white);
+      margin-bottom: 18px;
+      overflow: clip;
+      box-shadow: var(--shadow);
+    }
+
+    .section-title {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: end;
+      padding: 15px 16px;
+      border-bottom: 1px solid var(--border-slate-200);
+      background: linear-gradient(90deg, rgba(99, 102, 241, .08), rgba(56, 189, 248, .08));
+    }
+
+    .section-title p {
+      margin: 6px 0 0;
+      color: var(--text-slate-500);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .cards {
+      display: grid;
+      gap: 0;
+    }
+
+    .topic {
+      border-bottom: 1px solid var(--border-slate-200);
+      padding: 16px;
+    }
+
+    .topic:last-child {
+      border-bottom: 0;
+    }
+
+    .topic-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .topic h3 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .topic-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      border: 1px solid var(--border-slate-200);
+      border-radius: 999px;
+      background: var(--surface-slate-100);
+      color: var(--text-slate-700);
+      padding: 0 8px;
+      white-space: nowrap;
+    }
+
+    .topic-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .complete-btn,
+    .expand-btn {
+      min-width: 94px;
+      min-height: 34px;
+      border: 1px solid var(--border-slate-200);
+      border-radius: var(--radius-lg);
+      background: var(--surface-white);
+      color: var(--text-slate-900);
+      font-weight: 600;
+      transition: transform 150ms ease-in-out, border-color 150ms ease-in-out, background 150ms ease-in-out;
+    }
+
+    .expand-btn {
+      min-width: 76px;
+    }
+
+    .complete-btn:hover,
+    .expand-btn:hover {
+      border-color: var(--indigo-500);
+      background: rgba(99, 102, 241, .08);
+    }
+
+    .complete-btn:active,
+    .expand-btn:active {
+      transform: scale(.98);
+    }
+
+    .complete-btn.done {
+      border-color: var(--emerald-500);
+      background: var(--emerald-500);
+      color: #fff;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .code-card {
+      min-width: 0;
+      border: 1px solid var(--border-slate-700);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      background: var(--bg-slate-900);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .code-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 36px;
+      border-bottom: 1px solid rgba(255, 255, 255, .12);
+      padding: 0 10px;
+      color: var(--text-slate-50);
+      font-family: var(--mono);
+      font-size: 12px;
+      background: var(--bg-slate-950);
+    }
+
+    .lang-js { color: var(--amber-500); }
+    .lang-go { color: var(--sky-400); }
+
+    .copy {
+      border: 1px solid rgba(255, 255, 255, .22);
+      border-radius: var(--radius-md);
+      background: transparent;
+      color: var(--text-slate-50);
+      padding: 4px 7px;
+      font-size: 11px;
+      transition: background 150ms ease-in-out, transform 150ms ease-in-out;
+    }
+
+    .copy:hover {
+      background: rgba(255, 255, 255, .08);
+    }
+
+    pre {
+      min-height: 148px;
+      max-height: 230px;
+      margin: 0;
+      overflow: auto;
+      padding: 12px;
+      color: var(--text-slate-50);
+      background: var(--bg-slate-900);
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.55;
+      tab-size: 2;
+    }
+
+    pre code.hljs {
+      padding: 0;
+      background: transparent;
+    }
+
+    .topic.expanded pre {
+      max-height: none;
+    }
+
+    .notes {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .note {
+      border: 1px solid var(--border-slate-200);
+      border-radius: var(--radius-xl);
+      background: var(--surface-slate-50);
+      padding: 11px;
+    }
+
+    .note b {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-slate-700);
+    }
+
+    .note p {
+      margin: 0;
+      color: var(--text-slate-500);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .progress-wrap {
+      display: grid;
+      gap: 8px;
+    }
+
+    .progress-bar {
+      height: 10px;
+      border: 1px solid var(--border-slate-200);
+      border-radius: 999px;
+      background: var(--surface-slate-100);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 0;
+      height: 100%;
+      background: var(--emerald-500);
+      transition: width .2s ease;
+    }
+
+    .progress-number {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-slate-500);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .quick-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .quick-item {
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      gap: 8px;
+      align-items: start;
+      border-top: 1px solid var(--border-slate-200);
+      padding-top: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: var(--text-slate-700);
+    }
+
+    .quick-item code {
+      color: var(--indigo-600);
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .path {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .path-step {
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      gap: 8px;
+      align-items: start;
+      color: var(--text-slate-500);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .path-step b {
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border: 1px solid var(--border-slate-200);
+      border-radius: 50%;
+      color: var(--text-slate-900);
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .empty {
+      border: 1px dashed var(--border-slate-200);
+      border-radius: var(--radius-xl);
+      background: var(--surface-white);
+      padding: 28px;
+      color: var(--text-slate-500);
+      text-align: center;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 30;
+      border: 1px solid var(--indigo-600);
+      border-radius: var(--radius-lg);
+      background: var(--indigo-500);
+      color: #fff;
+      padding: 10px 12px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity .18s ease, transform .18s ease;
+      pointer-events: none;
+      font-size: 13px;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .backtop {
+      position: fixed;
+      right: 18px;
+      bottom: 68px;
+      z-index: 19;
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--border-slate-200);
+      border-radius: var(--radius-lg);
+      background: var(--surface-white);
+      color: var(--text-slate-900);
+      box-shadow: var(--shadow);
+    }
+
+    .drawer {
+      display: none;
+    }
+
+    @media (max-width: 1180px) {
+      .topbar {
+        grid-template-columns: 1fr;
+      }
+
+      .search-row {
+        grid-template-columns: minmax(180px, 1fr) 1fr 1fr 1fr;
+      }
+
+      .toolbar-actions {
+        justify-content: flex-start;
+      }
+
+      .shell {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .side,
+      .right-rail {
+        display: none;
+      }
+
+      .mobile-only {
+        display: inline-flex;
+      }
+
+      .intro {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 780px) {
+      .topbar,
+      .shell {
+        padding: 12px;
+      }
+
+      .search-row {
+        grid-template-columns: 1fr;
+      }
+
+      .brand {
+        min-width: 0;
+      }
+
+      .intro {
+        padding: 15px;
+      }
+
+      .intro-grid,
+      .matrix,
+      .compare-grid,
+      .notes {
+        grid-template-columns: 1fr;
+      }
+
+      .topic-head,
+      .section-title {
+        grid-template-columns: 1fr;
+      }
+
+      .topic-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .complete-btn {
+        width: 100%;
+      }
+
+      .expand-btn {
+        width: 100%;
+      }
+
+      pre {
+        min-height: auto;
+        max-height: 340px;
+      }
+    }
+
+    .drawer.open {
+      display: block;
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      background: rgba(21, 23, 17, .36);
+    }
+
+    .drawer-panel {
+      width: min(360px, calc(100vw - 30px));
+      height: 100%;
+      overflow: auto;
+      border-right: 1px solid var(--border-slate-200);
+      background: var(--surface-white);
+    }
+
+    .topbar {
+      max-width: 1180px;
+    }
+
+    .shell {
+      grid-template-columns: 280px minmax(0, 1fr);
+      max-width: 1180px;
+      gap: 24px;
+      padding: 24px 18px;
+    }
+
+    .side {
+      display: block;
+      top: 97px;
+      height: calc(100dvh - 121px);
+    }
+
+    .right-rail,
+    .search-row,
+    .toolbar-actions,
+    .drawer {
+      display: none;
+    }
+
+    .toc {
+      gap: 14px;
+      padding: 12px;
+    }
+
+    .toc-section {
+      display: grid;
+      gap: 5px;
+    }
+
+    .toc-section-title {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+      padding: 8px;
+      color: var(--text-slate-500);
+      font-size: 12px;
+      line-height: 16px;
+    }
+
+    .toc-section-title span {
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .toc-section-title b {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 700;
+    }
+
+    .toc button {
+      grid-template-columns: 28px minmax(0, 1fr);
+      min-height: 36px;
+    }
+
+    .toc button.done .toc-title::after {
+      content: " 已完成";
+      color: var(--emerald-500);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .lesson {
+      border: 1px solid var(--border-slate-200);
+      border-radius: var(--radius-xl);
+      background: var(--surface-white);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .lesson-header {
+      padding: 32px;
+      border-bottom: 1px solid var(--border-slate-200);
+      background: linear-gradient(90deg, rgba(99, 102, 241, .08), rgba(56, 189, 248, .08));
+    }
+
+    .lesson-kicker {
+      margin-bottom: 12px;
+      color: var(--indigo-600);
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 16px;
+    }
+
+    .lesson-header h2 {
+      max-width: 860px;
+      margin: 0;
+      color: var(--text-slate-900);
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 36px;
+      letter-spacing: 0;
+    }
+
+    .lesson-header p {
+      max-width: 68ch;
+      margin: 12px 0 0;
+      color: var(--text-slate-500);
+      font-size: 16px;
+      line-height: 24px;
+    }
+
+    .lesson .topic-meta {
+      margin-top: 16px;
+    }
+
+    .lesson .compare-grid {
+      padding: 24px;
+      margin-top: 0;
+    }
+
+    .lesson .notes {
+      padding: 0 24px 24px;
+      margin-top: 0;
+    }
+
+    .lesson .notes {
+      display: block;
+      max-width: 76ch;
+      padding-top: 2px;
+    }
+
+    .lesson .note {
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      padding: 0;
+      margin: 0 0 22px;
+    }
+
+    .lesson .note b {
+      margin-bottom: 8px;
+      color: var(--text-slate-900);
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 28px;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .lesson .note p {
+      color: var(--text-slate-700);
+      font-size: 16px;
+      line-height: 28px;
+    }
+
+    .inline-code {
+      display: inline;
+      border: 1px solid var(--border-slate-200);
+      border-radius: var(--radius-md);
+      background: var(--surface-slate-100);
+      color: var(--indigo-600);
+      font-family: var(--mono);
+      font-size: .92em;
+      line-height: 1;
+      padding: 1px 5px;
+      white-space: nowrap;
+    }
+
+    .toc .inline-code {
+      font-size: 11px;
+      padding: 0 3px;
+    }
+
+    .lesson pre {
+      min-height: 220px;
+      max-height: none;
+    }
+
+    .lesson-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      padding: 20px 24px 24px;
+      border-top: 1px solid var(--border-slate-200);
+      background: var(--surface-slate-50);
+    }
+
+    .lesson-actions .btn {
+      min-height: 46px;
+      font-weight: 700;
+    }
+
+    .lesson-actions .btn:disabled {
+      cursor: not-allowed;
+      opacity: .45;
+    }
+
+    .lesson-actions .btn.completed {
+      border-color: var(--emerald-500);
+      background: var(--emerald-500);
+    }
+
+    @media (max-width: 900px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .side {
+        position: static;
+        height: auto;
+        max-height: 280px;
+      }
+
+      .lesson-header,
+      .lesson .compare-grid,
+      .lesson .notes,
+      .lesson-actions {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar,
+      .shell {
+        padding: 12px;
+      }
+
+      .topbar {
+        grid-template-columns: 1fr;
+      }
+
+      .lesson-header {
+        padding-top: 22px;
+        padding-bottom: 22px;
+      }
+
+      .lesson-header h2 {
+        font-size: 24px;
+        line-height: 30px;
+      }
+
+      .compare-grid,
+      .notes,
+      .lesson-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="topbar">
+      <div class="brand">
+        <div class="mark">JS/Go</div>
+        <div>
+          <h1>对比学习编程语言</h1>
+          <p>语法、类型、并发、生态与工程判断</p>
+        </div>
+      </div>
+      <a class="repo-link" href="https://github.com/holynova/js-go-compare" target="_blank" rel="noreferrer">GitHub Repo</a>
+    </div>
+  </header>
+
+  <div class="shell">
+    <aside class="side">
+      <div class="side-head">
+        <strong>课程目录</strong>
+        <p id="courseProgress">0 / 0 已完成</p>
+      </div>
+      <nav class="toc" id="toc"></nav>
+    </aside>
+
+    <main class="main">
+      <article class="lesson" id="content"></article>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">已复制</div>
+
+  <script>
+    const sections = [
+      { id: "positioning", title: "语言定位与设计哲学", summary: "理解两种语言为什么长成现在这样。" },
+      { id: "basics", title: "基础语法", summary: "入口、声明、类型、格式化和表达式。" },
+      { id: "control", title: "控制流", summary: "条件、分支、循环和错误路径组织。" },
+      { id: "data", title: "数据结构", summary: "数组、对象、map、JSON、struct 与引用语义。" },
+      { id: "functions", title: "函数与作用域", summary: "函数值、闭包、多返回值与作用域边界。" },
+      { id: "composition", title: "面向对象与组合", summary: "prototype、class、method、interface 与组合。" },
+      { id: "errors", title: "错误处理", summary: "异常、Promise rejection、error 返回值和 panic。" },
+      { id: "async", title: "异步与并发", summary: "event loop、async-await、goroutine、channel 和 select。" },
+      { id: "modules", title: "模块与包管理", summary: "ESM、CommonJS、npm、Go module 与依赖治理。" },
+      { id: "types", title: "类型系统", summary: "动态类型、TypeScript、Go 静态类型和泛型。" },
+      { id: "stdlib", title: "标准库与常用库", summary: "薄标准库厚生态与厚标准库克制依赖。" },
+      { id: "web", title: "Web 开发生态", summary: "前端、Node 后端、Go 后端和部署模型。" },
+      { id: "tooling", title: "工具链与工程体验", summary: "格式化、测试、构建、调试和 CI。" },
+      { id: "performance", title: "性能与内存模型", summary: "JIT、编译、GC、冷启动和高并发服务。" },
+      { id: "usecases", title: "典型应用场景", summary: "什么时候选 JS，什么时候选 Go，什么时候组合。" },
+      { id: "migration", title: "迁移与互学指南", summary: "跨语言学习时最容易误判的地方。" }
+    ];
+
+    const topics = [
+      {
+        id: "philosophy",
+        section: "positioning",
+        title: "设计哲学：灵活表达 vs 简洁约束",
+        level: "beginner",
+        tags: ["engineering", "runtime"],
+        jsCode: `const user = { id: 1, name: "Ada" };
+user.role = "admin";
+
+function greet(target) {
+  return "hi " + target.name;
+}`,
+        goCode: `type User struct {
+  ID   int
+  Name string
+  Role string
+}
+
+func Greet(target User) string {
+  return "hi " + target.Name
+}`,
+        difference: "JS 默认让对象在运行时继续变形；Go 倾向先声明形状，再让编译器检查使用方式。",
+        advice: "探索期和 UI 状态建模 JS 更轻；长期服务边界、多人维护和部署稳定性上 Go 更省心。",
+        ecosystemNote: "现代 JS 常用 TypeScript 给灵活对象补类型；Go 把这种约束作为语言默认值。"
+      },
+      {
+        id: "runtime-model",
+        section: "positioning",
+        title: "运行与交付：解释/JIT + 运行时 vs 编译后二进制",
+        level: "beginner",
+        tags: ["runtime", "engineering", "performance"],
+        jsCode: `// Node.js
+// package.json declares runtime scripts
+// Deployment ships source/bundle plus Node runtime.
+console.log(process.version);`,
+        goCode: `// go build -o server .
+// Deployment can ship a single binary.
+package main
+
+func main() {
+  println("compiled binary")
+}`,
+        difference: "JS 通常依赖浏览器或 Node 运行时；Go 编译产物更接近自包含程序。",
+        advice: "需要浏览器能力时 JS 不可替代；需要小型服务、CLI、容器镜像和简单部署时 Go 很直接。",
+        ecosystemNote: "Node 部署常关注依赖体积和 runtime 版本；Go 部署常关注目标平台、CGO 和交叉编译。"
+      },
+      {
+        id: "entrypoint",
+        section: "basics",
+        title: "文件结构与入口",
+        level: "beginner",
+        tags: ["syntax", "engineering"],
+        jsCode: `// index.js
+import { serve } from "./server.js";
+
+serve({ port: 3000 });`,
+        goCode: `// main.go
+package main
+
+func main() {
+  Serve(3000)
+}`,
+        difference: "JS 入口由运行命令、打包器或 HTML script 决定；Go 可执行程序入口固定是 package main 的 main 函数。",
+        advice: "JS 项目要先读 package.json scripts；Go 项目先找 cmd 目录或 main.go。",
+        ecosystemNote: "Go 大型项目常用 /cmd/appname；JS 前端常由 Vite、Next.js 或框架约定入口。"
+      },
+      {
+        id: "variables",
+        section: "basics",
+        title: "变量声明：let/const vs :=/var/const",
+        level: "beginner",
+        tags: ["syntax", "types"],
+        jsCode: `const name = "Ada";
+let retries = 0;
+
+retries += 1;
+// Avoid var in modern code unless maintaining old code.`,
+        goCode: `name := "Ada"
+retries := 0
+
+retries += 1
+// var retries int is useful when zero value matters.`,
+        difference: "JS 的 const 约束绑定不可重新赋值，不约束对象内部；Go 的 := 是局部推断声明，const 是编译期常量。",
+        advice: "JS 优先 const，再 let；Go 在函数内优先 :=，需要零值或包级变量时用 var。",
+        ecosystemNote: "ESLint 常强制 prefer-const；Go 编译器会拒绝未使用变量。"
+      },
+      {
+        id: "basic-types",
+        section: "basics",
+        title: "基础类型与空值",
+        level: "beginner",
+        tags: ["syntax", "types"],
+        jsCode: `const count = 3;        // number
+const name = "Ada";    // string
+const active = true;   // boolean
+const missing = null;
+let unknown;           // undefined`,
+        goCode: `count := 3          // int
+name := "Ada"       // string
+active := true      // bool
+var missing *User   // nil pointer
+var total int       // zero value: 0`,
+        difference: "JS 有 null 和 undefined 两种常见空值；Go 用类型的零值和 nil 表示缺省状态。",
+        advice: "JS API 要明确 null/undefined 约定；Go API 要明确零值是否是有效业务值。",
+        ecosystemNote: "TypeScript 的 strictNullChecks 能减少空值混乱；Go 的零值设计让很多类型无需构造器。"
+      },
+      {
+        id: "conversion",
+        section: "basics",
+        title: "类型转换：隐式宽松 vs 显式转换",
+        level: "intermediate",
+        tags: ["syntax", "types"],
+        jsCode: `Number("42") + 1; // 43
+"5" + 1;        // "51"
+Boolean("");    // false
+0 == "0";       // true, avoid loose equality`,
+        goCode: `n, err := strconv.Atoi("42")
+if err != nil {
+  return err
+}
+total := n + 1`,
+        difference: "JS 会在很多表达式里隐式转换；Go 要求显式转换并处理失败。",
+        advice: "JS 生产代码优先用 === 和显式解析；Go 解析外部输入时始终接住 error。",
+        ecosystemNote: "JS 常用 zod/valibot 做边界校验；Go 常用 strconv、encoding/json 和自定义校验。"
+      },
+      {
+        id: "if-switch",
+        section: "control",
+        title: "if / switch：表达式风格与短声明",
+        level: "beginner",
+        tags: ["syntax"],
+        jsCode: `if (score >= 90) {
+  grade = "A";
+} else if (score >= 80) {
+  grade = "B";
+}
+
+switch (status) {
+  case "ready":
+    start();
+    break;
+}`,
+        goCode: `if score := calcScore(); score >= 90 {
+  grade = "A"
+} else if score >= 80 {
+  grade = "B"
+}
+
+switch status {
+case "ready":
+  start()
+}`,
+        difference: "Go 的 if 可以带短声明，switch 默认不 fallthrough；JS switch 需要 break 避免贯穿。",
+        advice: "Go 用短声明收窄变量作用域；JS switch 少用 fallthrough，除非显式注释原因。",
+        ecosystemNote: "Go 编译器和 gofmt 会统一分支风格；JS 风格更多由 ESLint 规则约束。"
+      },
+      {
+        id: "loops",
+        section: "control",
+        title: "循环：多种 for vs 单一 for",
+        level: "beginner",
+        tags: ["syntax"],
+        jsCode: `for (const item of items) {
+  console.log(item);
+}
+
+for (const key in object) {
+  console.log(key, object[key]);
+}`,
+        goCode: `for _, item := range items {
+  fmt.Println(item)
+}
+
+for key, value := range object {
+  fmt.Println(key, value)
+}`,
+        difference: "JS 区分 for、for...of、for...in 和数组方法；Go 只有 for，遍历用 range。",
+        advice: "JS 遍历数组优先 for...of 或 map/filter/reduce；Go 用 range 时注意索引和值都是拷贝。",
+        ecosystemNote: "Go 1.22 修正了常见 loop variable 捕获坑；老代码仍可能需要留意闭包捕获。"
+      },
+      {
+        id: "error-branches",
+        section: "control",
+        title: "错误分支：异常路径 vs 显式返回",
+        level: "intermediate",
+        tags: ["syntax", "engineering"],
+        jsCode: `try {
+  const user = await loadUser(id);
+  return render(user);
+} catch (error) {
+  report(error);
+  return fallback();
+}`,
+        goCode: `user, err := LoadUser(ctx, id)
+if err != nil {
+  Report(err)
+  return Fallback(), nil
+}
+return Render(user), nil`,
+        difference: "JS 常把失败折叠进异常或 rejected Promise；Go 把失败作为普通返回值放在主流程旁边。",
+        advice: "JS 要避免吞掉 async 错误；Go 要让错误上下文足够清楚，别机械地 if err != nil 就 return。",
+        ecosystemNote: "Node 服务通常有全局 error middleware；Go 服务常在每层 wrapping error 并在边界统一记录。"
+      },
+      {
+        id: "arrays-slices",
+        section: "data",
+        title: "Array vs slice / array",
+        level: "beginner",
+        tags: ["syntax", "types"],
+        jsCode: `const names = ["Ada", "Ken"];
+names.push("Lin");
+
+const firstTwo = names.slice(0, 2);`,
+        goCode: `names := []string{"Ada", "Ken"}
+names = append(names, "Lin")
+
+firstTwo := names[:2]`,
+        difference: "JS Array 是动态对象；Go array 长度属于类型，日常更常用 slice 作为动态视图。",
+        advice: "Go slice 共享底层数组，保留大切片的小片段时注意内存引用；JS Array 方法要留意是否 mutating。",
+        ecosystemNote: "JS 常借助不可变更新管理 UI 状态；Go 服务端通常接受原地构造和 append。"
+      },
+      {
+        id: "objects-maps",
+        section: "data",
+        title: "Object / Map vs map",
+        level: "beginner",
+        tags: ["syntax", "types"],
+        jsCode: `const counts = new Map();
+counts.set("go", 3);
+counts.set("js", 5);
+
+const user = { id: 1, name: "Ada" };`,
+        goCode: `counts := map[string]int{
+  "go": 3,
+  "js": 5,
+}
+
+type User struct {
+  ID   int
+  Name string
+}`,
+        difference: "JS Object 常兼任记录和结构体；Go map 是同构键值表，结构化数据用 struct。",
+        advice: "JS 需要任意键时优先 Map；Go 不要用 map[string]any 逃避模型设计，除非处理未知 JSON。",
+        ecosystemNote: "TypeScript interface/type 能补上结构约束；Go struct tag 常承担 JSON/DB 映射。"
+      },
+      {
+        id: "json",
+        section: "data",
+        title: "JSON 建模：自由对象 vs 带 tag 的 struct",
+        level: "intermediate",
+        tags: ["types", "ecosystem"],
+        jsCode: `const payload = await response.json();
+if (payload.active) {
+  console.log(payload.name);
+}`,
+        goCode: `type UserDTO struct {
+  Name   string \`json:"name"\`
+  Active bool   \`json:"active"\`
+}
+
+var payload UserDTO
+err := json.NewDecoder(r.Body).Decode(&payload)`,
+        difference: "JS 解析 JSON 后得到动态对象；Go 需要把 JSON 映射到 struct 或 map。",
+        advice: "JS 边界数据要做 runtime validation；Go DTO 要区分缺省值、空值和字段缺失。",
+        ecosystemNote: "JS 常用 zod 生成类型和校验；Go 常用 encoding/json、validator 和自定义 Unmarshal。"
+      },
+      {
+        id: "reference-copy",
+        section: "data",
+        title: "引用、拷贝与可变性",
+        level: "advanced",
+        tags: ["types", "engineering"],
+        jsCode: `const a = { count: 1 };
+const b = a;
+b.count = 2; // a.count is also 2
+
+const c = { ...a, count: 3 };`,
+        goCode: `a := Counter{Count: 1}
+b := a
+b.Count = 2 // a.Count is still 1
+
+p := &a
+p.Count = 3`,
+        difference: "JS 对象赋值复制引用；Go struct 赋值复制值，只有指针/slice/map/channel/function 是引用语义。",
+        advice: "JS UI 状态更新要显式复制；Go API 设计要决定传值还是传指针，表达所有权和可变性。",
+        ecosystemNote: "React 状态管理强调不可变更新；Go 代码审查常关注指针逃逸和共享数据竞争。"
+      },
+      {
+        id: "function-shapes",
+        section: "functions",
+        title: "函数声明、箭头函数与多返回值",
+        level: "beginner",
+        tags: ["syntax", "types"],
+        jsCode: `const divide = (a, b) => {
+  if (b === 0) throw new Error("zero");
+  return a / b;
+};`,
+        goCode: `func Divide(a, b float64) (float64, error) {
+  if b == 0 {
+    return 0, errors.New("zero")
+  }
+  return a / b, nil
+}`,
+        difference: "JS 函数返回一个值或抛异常；Go 多返回值常把结果和错误一起返回。",
+        advice: "JS 回调和高阶函数表达力强；Go 多返回值让失败路径显式，适合服务边界。",
+        ecosystemNote: "TypeScript 可声明函数签名；Go 函数签名天然是 API 文档的一部分。"
+      },
+      {
+        id: "closures-scope",
+        section: "functions",
+        title: "闭包与作用域",
+        level: "intermediate",
+        tags: ["syntax", "runtime"],
+        jsCode: `function counter() {
+  let n = 0;
+  return () => ++n;
+}
+
+const next = counter();`,
+        goCode: `func Counter() func() int {
+  n := 0
+  return func() int {
+    n++
+    return n
+  }
+}`,
+        difference: "两者都支持闭包；JS 还要理解 var 提升、this 绑定和模块作用域，Go 规则更少。",
+        advice: "JS 中优先 let/const 避免 var 作用域坑；Go 中闭包捕获共享变量时要关注并发安全。",
+        ecosystemNote: "JS 框架大量使用闭包保存状态；Go 闭包常见于 handler、middleware 和测试 helper。"
+      },
+      {
+        id: "params",
+        section: "functions",
+        title: "默认参数和剩余参数 vs 显式参数",
+        level: "intermediate",
+        tags: ["syntax", "engineering"],
+        jsCode: `function request(url, options = {}) {
+  const headers = options.headers ?? {};
+  return fetch(url, { ...options, headers });
+}`,
+        goCode: `type RequestOptions struct {
+  Headers map[string]string
+  Timeout time.Duration
+}
+
+func Request(url string, opts RequestOptions) error {
+  // zero values are the defaults
+  return nil
+}`,
+        difference: "JS 参数可以很动态；Go 没有默认参数，常用 option struct 或 functional options。",
+        advice: "JS API 要防止 options 对象失控；Go API 参数超过三四个时考虑 struct。",
+        ecosystemNote: "Go functional options 在库 API 里常见，但业务代码里 option struct 更易读。"
+      },
+      {
+        id: "prototype-class",
+        section: "composition",
+        title: "prototype / class vs struct + method",
+        level: "intermediate",
+        tags: ["syntax", "types"],
+        jsCode: `class User {
+  constructor(name) {
+    this.name = name;
+  }
+  greet() {
+    return \`hi \${this.name}\`;
+  }
+}`,
+        goCode: `type User struct {
+  Name string
+}
+
+func (u User) Greet() string {
+  return "hi " + u.Name
+}`,
+        difference: "JS class 是基于 prototype 的语法层；Go 没有 class，方法绑定到类型。",
+        advice: "JS 要理解 this 绑定；Go 要决定 receiver 用值还是指针。",
+        ecosystemNote: "JS 生态同时存在 class、函数式和对象字面量风格；Go 风格更统一。"
+      },
+      {
+        id: "interfaces",
+        section: "composition",
+        title: "interface：显式声明使用方需要什么",
+        level: "intermediate",
+        tags: ["types", "engineering"],
+        jsCode: `function save(store, user) {
+  // Any object with a save method works at runtime.
+  return store.save(user);
+}`,
+        goCode: `type UserStore interface {
+  Save(ctx context.Context, user User) error
+}
+
+func Save(ctx context.Context, store UserStore, user User) error {
+  return store.Save(ctx, user)
+}`,
+        difference: "JS 是运行时鸭子类型；Go interface 是编译期隐式实现，通常由使用方定义最小需求。",
+        advice: "Go 不要为了每个 struct 都提前写 interface；在消费侧抽象更灵活。",
+        ecosystemNote: "TypeScript interface 与 Go interface 名字相同，但 TS 更偏结构类型声明和编辑器反馈。"
+      },
+      {
+        id: "composition-over-inheritance",
+        section: "composition",
+        title: "组合优先：继承层级 vs 小接口组合",
+        level: "advanced",
+        tags: ["types", "engineering"],
+        jsCode: `class AdminUser extends User {
+  canDelete() {
+    return true;
+  }
+}`,
+        goCode: `type ReaderWriter interface {
+  io.Reader
+  io.Writer
+}
+
+type AdminUser struct {
+  User
+  Permissions []string
+}`,
+        difference: "JS 支持 class extends；Go 通过嵌入和小接口组合复用能力。",
+        advice: "复杂业务模型里，先问能力边界而不是继承树；Go 尤其适合把行为拆成小 interface。",
+        ecosystemNote: "Go 标准库 io.Reader/io.Writer 是组合式接口的典型教材。"
+      },
+      {
+        id: "try-catch-error",
+        section: "errors",
+        title: "try/catch vs error 返回值",
+        level: "beginner",
+        tags: ["syntax", "engineering"],
+        jsCode: `try {
+  const text = await readFile(path);
+  return parse(text);
+} catch (error) {
+  throw new Error(\`load config failed: \${error.message}\`);
+}`,
+        goCode: `text, err := os.ReadFile(path)
+if err != nil {
+  return Config{}, fmt.Errorf("load config: %w", err)
+}
+return Parse(text)`,
+        difference: "JS 失败可以跨层冒泡；Go 失败通常逐层返回并包装上下文。",
+        advice: "JS 服务要统一捕获边界；Go 错误信息要包含动作和对象，方便日志定位。",
+        ecosystemNote: "Go 1.13 之后 %w、errors.Is、errors.As 是错误链基础工具。"
+      },
+      {
+        id: "panic-recover",
+        section: "errors",
+        title: "panic / recover 不是普通错误控制流",
+        level: "advanced",
+        tags: ["runtime", "engineering"],
+        jsCode: `function invariant(value) {
+  if (!value) {
+    throw new Error("impossible state");
+  }
+}`,
+        goCode: `func mustHave(value any) {
+  if value == nil {
+    panic("impossible state")
+  }
+}
+
+// recover belongs at process or goroutine boundaries.`,
+        difference: "JS throw 常被用于业务失败和不变量失败；Go panic 更适合不可恢复状态或程序员错误。",
+        advice: "Go 业务失败不要 panic；在 HTTP middleware、worker 边界 recover 并记录堆栈。",
+        ecosystemNote: "很多 Go 框架提供 recovery middleware；Node 也需要处理 uncaughtException 和 unhandledRejection。"
+      },
+      {
+        id: "event-loop",
+        section: "async",
+        title: "event loop 与 async-await",
+        level: "intermediate",
+        tags: ["runtime", "engineering"],
+        jsCode: `async function loadBoth() {
+  const [user, posts] = await Promise.all([
+    fetchUser(),
+    fetchPosts()
+  ]);
+  return { user, posts };
+}`,
+        goCode: `var wg sync.WaitGroup
+wg.Add(2)
+
+go func() {
+  defer wg.Done()
+  user = FetchUser(ctx)
+}()
+
+go func() {
+  defer wg.Done()
+  posts = FetchPosts(ctx)
+}()
+
+wg.Wait()`,
+        difference: "JS 并发 I/O 由事件循环调度；Go 用 goroutine 表示并发执行单元。",
+        advice: "JS 不要用 await 串行化本可并发的 I/O；Go 开 goroutine 时要有取消、错误收集和上限。",
+        ecosystemNote: "JS 常用 Promise.allSettled、p-limit；Go 常用 errgroup、context、worker pool。"
+      },
+      {
+        id: "channels-select",
+        section: "async",
+        title: "channel / select vs Promise 组合",
+        level: "advanced",
+        tags: ["runtime", "engineering"],
+        jsCode: `const timeout = new Promise((_, reject) =>
+  setTimeout(() => reject(new Error("timeout")), 1000)
+);
+
+await Promise.race([work(), timeout]);`,
+        goCode: `select {
+case result := <-resultCh:
+  return result, nil
+case <-time.After(time.Second):
+  return Result{}, errors.New("timeout")
+case <-ctx.Done():
+  return Result{}, ctx.Err()
+}`,
+        difference: "JS 用 Promise 组合表达异步竞争；Go select 在 channel 和取消信号之间做选择。",
+        advice: "Go channel 是同步协议，不是随手替代队列；JS Promise race 要注意未完成任务的取消问题。",
+        ecosystemNote: "AbortController 是 JS 取消模型核心；context.Context 是 Go 请求链取消模型核心。"
+      },
+      {
+        id: "modules-import",
+        section: "modules",
+        title: "ES Modules / CommonJS vs Go import",
+        level: "beginner",
+        tags: ["ecosystem", "engineering"],
+        jsCode: `import { readFile } from "node:fs/promises";
+import { createUser } from "./user.js";
+
+export { createUser };`,
+        goCode: `import (
+  "context"
+  "net/http"
+
+  "example.com/app/user"
+)`,
+        difference: "JS 同时存在 ESM 和 CommonJS 历史包袱；Go import 路径和 module path 直接绑定。",
+        advice: "JS 项目要统一 module type；Go 包名要短、稳定，不要制造循环依赖。",
+        ecosystemNote: "package.json 的 type 字段会影响 .js 解释方式；Go 循环 import 编译期直接失败。"
+      },
+      {
+        id: "package-management",
+        section: "modules",
+        title: "npm/pnpm/yarn vs Go module",
+        level: "intermediate",
+        tags: ["ecosystem", "engineering"],
+        jsCode: `{
+  "scripts": {
+    "dev": "vite",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "zod": "^3.24.0"
+  }
+}`,
+        goCode: `module example.com/app
+
+go 1.22
+
+require github.com/go-chi/chi/v5 v5.0.12`,
+        difference: "JS 包管理围绕 npm registry、semver range 和 lockfile；Go module 使用最小版本选择和 go.sum 校验。",
+        advice: "JS 应提交 lockfile 并控制依赖面；Go 应定期 go mod tidy，避免不必要的间接依赖。",
+        ecosystemNote: "pnpm 在 monorepo 中很常见；Go workspace 用 go.work 管理多 module 开发。"
+      },
+      {
+        id: "dynamic-vs-static",
+        section: "types",
+        title: "动态类型、TypeScript 与 Go 静态类型",
+        level: "beginner",
+        tags: ["types", "engineering"],
+        jsCode: `type User = {
+  id: string;
+  name: string;
+};
+
+function label(user: User) {
+  return user.name.toUpperCase();
+}`,
+        goCode: `type User struct {
+  ID   string
+  Name string
+}
+
+func Label(user User) string {
+  return strings.ToUpper(user.Name)
+}`,
+        difference: "大型 JS 工程通常实际在写 TypeScript；Go 类型系统更简单，但约束是编译器默认提供的。",
+        advice: "比较工程体验时别拿裸 JS 和 Go 比大型项目，应比较 TS+JS 生态和 Go 原生工具链。",
+        ecosystemNote: "TS 类型会在运行时消失；Go 类型影响编译产物、方法集和接口满足关系。"
+      },
+      {
+        id: "generics",
+        section: "types",
+        title: "泛型：表达复用但别过度抽象",
+        level: "advanced",
+        tags: ["types", "engineering"],
+        jsCode: `function first(items) {
+  return items[0];
+}
+
+// TypeScript
+function firstTyped<T>(items: T[]): T | undefined {
+  return items[0];
+}`,
+        goCode: `func First[T any](items []T) (T, bool) {
+  var zero T
+  if len(items) == 0 {
+    return zero, false
+  }
+  return items[0], true
+}`,
+        difference: "JS 运行时没有泛型；TypeScript 泛型做静态约束。Go 泛型进入语言，但风格仍偏克制。",
+        advice: "Go 泛型适合容器、算法和类型安全 helper；业务层先用清晰类型，不要把 TS 式复杂类型体操搬过来。",
+        ecosystemNote: "Go 标准库 slices、maps、cmp 展示了泛型的主流使用边界。"
+      },
+      {
+        id: "stdlib-http",
+        section: "stdlib",
+        title: "HTTP：fetch/框架 vs net/http",
+        level: "intermediate",
+        tags: ["ecosystem", "engineering"],
+        jsCode: `const response = await fetch("/api/users", {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify(input)
+});`,
+        goCode: `mux := http.NewServeMux()
+mux.HandleFunc("POST /users", createUser)
+
+server := &http.Server{
+  Addr: ":8080",
+  Handler: mux,
+}`,
+        difference: "JS 浏览器内置 fetch，Node 后端常靠框架组织路由；Go 标准库已经能搭建严肃 HTTP 服务。",
+        advice: "JS 后端选框架要看团队约定；Go 小服务可以先用 net/http，复杂路由再引入 chi/gin/echo。",
+        ecosystemNote: "Go 1.22 ServeMux 支持 method 和 pattern，减少了轻量服务对路由库的依赖。"
+      },
+      {
+        id: "common-libs",
+        section: "stdlib",
+        title: "常用库：生态厚度的方向不同",
+        level: "beginner",
+        tags: ["ecosystem"],
+        jsCode: `import { z } from "zod";
+import dayjs from "dayjs";
+import axios from "axios";
+
+const schema = z.object({ id: z.string() });`,
+        goCode: `import (
+  "context"
+  "encoding/json"
+  "net/http"
+  "sync"
+  "time"
+)`,
+        difference: "JS 标准库较薄，第三方库覆盖大量日常需求；Go 标准库覆盖更多服务器基础能力。",
+        advice: "JS 要治理依赖和供应链；Go 要避免因为标准库够用而写出重复粗糙的基础设施。",
+        ecosystemNote: "JS 依赖更新频繁；Go 第三方库一般更少、更稳定，但 Web 框架选择仍需谨慎。"
+      },
+      {
+        id: "frontend-backend",
+        section: "web",
+        title: "前端、BFF 与 API 服务",
+        level: "beginner",
+        tags: ["ecosystem", "engineering"],
+        jsCode: `// Next.js route handler
+export async function GET() {
+  const data = await loadDashboard();
+  return Response.json(data);
+}`,
+        goCode: `func Dashboard(w http.ResponseWriter, r *http.Request) {
+  data, err := LoadDashboard(r.Context())
+  if err != nil {
+    http.Error(w, err.Error(), 500)
+    return
+  }
+  json.NewEncoder(w).Encode(data)
+}`,
+        difference: "JS 可在前端、SSR 和 BFF 之间共享语言；Go 常作为稳定 API 服务或内部平台服务。",
+        advice: "产品早期 JS 全栈速度快；流量、并发、平台工具和长期运维压力上来后 Go 服务边界很自然。",
+        ecosystemNote: "常见架构是 React/Next 前端 + Go API + Postgres/Redis + Docker/Kubernetes。"
+      },
+      {
+        id: "frameworks",
+        section: "web",
+        title: "框架版图：React/Next/Express vs Gin/Echo/Fiber",
+        level: "intermediate",
+        tags: ["ecosystem"],
+        jsCode: `app.get("/users/:id", async (req, res) => {
+  const user = await users.find(req.params.id);
+  res.json(user);
+});`,
+        goCode: `r.GET("/users/:id", func(c *gin.Context) {
+  user, err := users.Find(c.Param("id"))
+  if err != nil {
+    c.JSON(404, gin.H{"error": "not found"})
+    return
+  }
+  c.JSON(200, user)
+})`,
+        difference: "JS Web 框架从 UI 到服务端选择极多；Go 后端框架更集中在路由、中间件和绑定。",
+        advice: "不要只按 star 选框架；看团队熟悉度、生态插件、类型体验、测试方式和长期维护。",
+        ecosystemNote: "Go Fiber 受 Express 风格影响；Gin/Echo/chi 更常见于传统 Go HTTP 服务。"
+      },
+      {
+        id: "format-lint",
+        section: "tooling",
+        title: "格式化与 lint：选择多 vs 标准强",
+        level: "beginner",
+        tags: ["engineering"],
+        jsCode: `// package.json
+{
+  "scripts": {
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  }
+}`,
+        goCode: `gofmt -w .
+go vet ./...
+staticcheck ./...
+golangci-lint run`,
+        difference: "JS 工具链可配置性高；Go gofmt 是事实标准，格式争论很少。",
+        advice: "JS 项目尽早固化 ESLint/Prettier/TSConfig；Go 项目默认接入 gofmt、go test、go vet，再按需加 staticcheck。",
+        ecosystemNote: "Biome 正在整合 JS lint/format；Go 的工具链入口长期保持稳定。"
+      },
+      {
+        id: "testing",
+        section: "tooling",
+        title: "测试：Vitest/Jest/Playwright vs go test",
+        level: "intermediate",
+        tags: ["engineering"],
+        jsCode: `import { expect, test } from "vitest";
+
+test("adds", () => {
+  expect(add(1, 2)).toBe(3);
+});`,
+        goCode: `func TestAdd(t *testing.T) {
+  got := Add(1, 2)
+  if got != 3 {
+    t.Fatalf("got %d", got)
+  }
+}`,
+        difference: "JS 测试栈按场景拆分明显；Go 内置 testing 覆盖单测、表驱动、基准和 fuzz。",
+        advice: "JS 前端必须补浏览器级测试；Go 服务优先表驱动测试和接口边界测试。",
+        ecosystemNote: "Playwright 是 JS 端到端测试强项；Go 的 httptest 对 HTTP handler 测试非常顺手。"
+      },
+      {
+        id: "build-debug-ci",
+        section: "tooling",
+        title: "构建、调试与 CI",
+        level: "intermediate",
+        tags: ["engineering"],
+        jsCode: `npm run typecheck
+npm run test
+npm run build
+
+node --inspect server.js`,
+        goCode: `go test ./...
+go build ./...
+go test -race ./...
+
+dlv debug ./cmd/api`,
+        difference: "JS 构建通常涉及转译、打包和类型检查；Go 构建和测试路径更短。",
+        advice: "JS CI 要分清 typecheck、unit、e2e、bundle；Go CI 至少跑 test、vet、race 关键包。",
+        ecosystemNote: "Go race detector 是排查数据竞争的重要工具；JS 则更多依赖运行时监控和 e2e 覆盖。"
+      },
+      {
+        id: "jit-compiled",
+        section: "performance",
+        title: "JIT vs 编译：性能不是单一维度",
+        level: "intermediate",
+        tags: ["performance", "runtime"],
+        jsCode: `const start = performance.now();
+for (let i = 0; i < 1_000_000; i++) {
+  work(i);
+}
+console.log(performance.now() - start);`,
+        goCode: `start := time.Now()
+for i := 0; i < 1_000_000; i++ {
+  Work(i)
+}
+fmt.Println(time.Since(start))`,
+        difference: "JS 引擎 JIT 很强但受运行时和对象形状影响；Go 编译后性能更可预测。",
+        advice: "前端瓶颈多在渲染和网络；后端瓶颈要用 profile 看 CPU、内存、锁和 I/O。",
+        ecosystemNote: "Go pprof 是生产性能分析核心工具；Node 有 inspector、clinic、0x 等工具。"
+      },
+      {
+        id: "gc-memory",
+        section: "performance",
+        title: "GC、内存和冷启动",
+        level: "advanced",
+        tags: ["performance", "runtime"],
+        jsCode: `const cache = new Map();
+
+function remember(key, value) {
+  cache.set(key, value);
+}`,
+        goCode: `type Cache struct {
+  mu sync.RWMutex
+  data map[string]Value
+}
+
+func (c *Cache) Set(k string, v Value) {
+  c.mu.Lock()
+  defer c.mu.Unlock()
+  c.data[k] = v
+}`,
+        difference: "两者都有 GC；Go 更常直接面对内存布局、逃逸、锁竞争，JS 更常面对对象保留和事件监听泄漏。",
+        advice: "Serverless 冷启动和内存预算要实际测；Go 二进制通常冷启动更稳，Node 在生态集成上更方便。",
+        ecosystemNote: "Go 用 pprof/trace；Node 用 heap snapshot、async hooks 和 APM 工具。"
+      },
+      {
+        id: "choose-js",
+        section: "usecases",
+        title: "什么时候优先选 JS / TypeScript",
+        level: "beginner",
+        tags: ["ecosystem", "engineering"],
+        jsCode: `// One language across UI, server routes, validation.
+const schema = z.object({ email: z.string().email() });
+export type SignupInput = z.infer<typeof schema>;`,
+        goCode: `// Go can serve the API, but it will not replace browser JS.
+func Signup(w http.ResponseWriter, r *http.Request) {
+  // validate and persist
+}`,
+        difference: "JS/TS 最大优势是浏览器原生和端到端产品速度；Go 最大优势不在 UI 层。",
+        advice: "前端复杂、团队想统一语言、产品验证快时优先 JS/TS。",
+        ecosystemNote: "Next.js、React、Vite、Playwright、Electron/Tauri 周边让 JS 在产品层非常强。"
+      },
+      {
+        id: "choose-go",
+        section: "usecases",
+        title: "什么时候优先选 Go",
+        level: "beginner",
+        tags: ["ecosystem", "performance", "engineering"],
+        jsCode: `// Node can do services well, but deployment includes runtime and deps.
+app.listen(3000);`,
+        goCode: `// A small service or CLI can ship as one binary.
+func main() {
+  if err := run(); err != nil {
+    log.Fatal(err)
+  }
+}`,
+        difference: "Go 在网络服务、CLI、并发任务、基础设施和云原生工具上非常顺手。",
+        advice: "当问题是稳定服务、部署简洁、并发 I/O、平台工具或团队长期维护，优先考虑 Go。",
+        ecosystemNote: "Docker、Kubernetes、Terraform 周边大量工具使用 Go，生态心智偏基础设施。"
+      },
+      {
+        id: "combined-stack",
+        section: "usecases",
+        title: "组合架构：JS 前端 + Go API",
+        level: "intermediate",
+        tags: ["ecosystem", "engineering"],
+        jsCode: `const response = await fetch("/api/report");
+const report = await response.json();
+renderReport(report);`,
+        goCode: `func Report(w http.ResponseWriter, r *http.Request) {
+  report := BuildReport(r.Context())
+  json.NewEncoder(w).Encode(report)
+}`,
+        difference: "两种语言不必互斥；常见边界是 HTTP JSON、GraphQL、gRPC 或消息队列。",
+        advice: "用 OpenAPI/Protobuf/类型生成维护边界契约，避免前后端手写字段漂移。",
+        ecosystemNote: "oapi-codegen、buf、connect、tRPC 风格工具都在解决跨边界类型同步问题。"
+      },
+      {
+        id: "js-to-go",
+        section: "migration",
+        title: "JS 开发者学 Go：少魔法，多显式",
+        level: "beginner",
+        tags: ["engineering", "types"],
+        jsCode: `const result = await maybe();
+if (!result) return null;
+
+return transform(result);`,
+        goCode: `result, err := Maybe(ctx)
+if err != nil {
+  return Output{}, err
+}
+return Transform(result), nil`,
+        difference: "从 JS 到 Go 最大切换是：少依赖运行时动态性，多接受编译器和显式错误流。",
+        advice: "先练 struct、interface、error、context、goroutine；不要急着找 JS 里每个模式的 Go 等价物。",
+        ecosystemNote: "Go by Example、官方 Tour、标准库源码是比框架教程更好的早期材料。"
+      },
+      {
+        id: "go-to-js",
+        section: "migration",
+        title: "Go 开发者学 JS/TS：理解运行时和工具链",
+        level: "beginner",
+        tags: ["runtime", "ecosystem"],
+        jsCode: `button.addEventListener("click", async () => {
+  setLoading(true);
+  try {
+    await save();
+  } finally {
+    setLoading(false);
+  }
+});`,
+        goCode: `// In Go services, request lifecycle is usually explicit.
+func Save(ctx context.Context) error {
+  return repo.Save(ctx)
+}`,
+        difference: "从 Go 到 JS/TS 最大切换是：事件驱动 UI、运行时异步和复杂工具链。",
+        advice: "先搞清 event loop、DOM/React 状态、package.json、ESM 和 TypeScript，再深入框架。",
+        ecosystemNote: "JS 生态更新快，选长期稳定工具比追新更重要。"
+      },
+      {
+        id: "practice-roadmap",
+        section: "migration",
+        title: "练习项目：用同一需求学习两种表达",
+        level: "intermediate",
+        tags: ["engineering"],
+        jsCode: `// Build a small dashboard client.
+// Add filters, optimistic UI, and Playwright tests.`,
+        goCode: `// Build the matching API.
+// Add net/http handlers, database access, and go test coverage.`,
+        difference: "同一需求能暴露语言差异：JS 处理交互状态，Go 处理服务边界、并发和持久化。",
+        advice: "最佳练习是：React/TS 前端 + Go API + Postgres + Docker，再为 API 契约加生成或校验。",
+        ecosystemNote: "这条路线同时覆盖 npm、Vite、TypeScript、go test、Docker、HTTP、JSON 和 CI。"
+      }
+    ];
+
+    const state = {
+      activeTopicIndex: 0,
+      completedTopicIds: loadCompleted()
+    };
+
+    const els = {
+      content: document.getElementById("content"),
+      toc: document.getElementById("toc"),
+      courseProgress: document.getElementById("courseProgress"),
+      toast: document.getElementById("toast")
+    };
+
+    function loadCompleted() {
+      try {
+        return new Set(JSON.parse(localStorage.getItem("js-go-progress") || "[]"));
+      } catch {
+        return new Set();
+      }
+    }
+
+    function saveCompleted() {
+      localStorage.setItem("js-go-progress", JSON.stringify([...state.completedTopicIds]));
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    const inlineCodeTerms = [
+      "JavaScript", "TypeScript", "Promise.allSettled", "Promise.all", "Promise.race",
+      "async-await", "async", "await", "goroutine", "channel", "select", "context.Context",
+      "AbortController", "interface", "struct", "method", "prototype", "class", "extends",
+      "let", "const", "var", ":=", "nil", "null", "undefined", "map[string]any",
+      "map", "slice", "array", "JSON", "HTTP", "BFF", "API", "CLI", "SSR", "ESM",
+      "CommonJS", "npm", "pnpm", "yarn", "Go module", "go test", "gofmt",
+      "net/http", "io.Reader", "io.Writer", "React", "Next", "Express", "Gin",
+      "Echo", "Fiber", "zod", "encoding/json", "try/catch", "panic", "recover"
+    ];
+
+    function renderInlineCode(value) {
+      const terms = [...inlineCodeTerms].sort((a, b) => b.length - a.length);
+      const source = escapeHtml(value);
+      const alternatives = terms
+        .map(term => escapeHtml(term).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+        .join("|");
+      return source.replace(new RegExp(alternatives, "g"), match => `<code class="inline-code">${match}</code>`);
+    }
+
+    function firstMeaningfulLine(code) {
+      return code
+        .split("\n")
+        .map(line => line.trim())
+        .find(line => line && !line.startsWith("//")) || code.trim().split("\n")[0] || "";
+    }
+
+    function exampleText(topic) {
+      const jsLine = firstMeaningfulLine(topic.jsCode);
+      const goLine = firstMeaningfulLine(topic.goCode);
+      return `比如这节课的左边从 ${jsLine} 开始，右边从 ${goLine} 开始。先不要急着背语法，先看它们各自在强调什么：JS 往往先让事情跑起来，Go 往往先把形状、边界和错误路径摆清楚。`;
+    }
+
+    function sectionById(id) {
+      return sections.find(section => section.id === id);
+    }
+
+    function levelLabel(level) {
+      return {
+        beginner: "入门",
+        intermediate: "进阶",
+        advanced: "高级"
+      }[level] || level;
+    }
+
+    function tagLabel(tag) {
+      return {
+        syntax: "语法",
+        types: "类型",
+        runtime: "运行时",
+        ecosystem: "生态",
+        engineering: "工程",
+        performance: "性能"
+      }[tag] || tag;
+    }
+
+    function renderToc() {
+      els.toc.innerHTML = sections.map((section, sectionIndex) => {
+        const sectionTopics = topics
+          .map((topic, topicIndex) => ({ topic, topicIndex }))
+          .filter(item => item.topic.section === section.id);
+        return `
+          <div class="toc-section">
+            <div class="toc-section-title">
+              <span>${String(sectionIndex + 1).padStart(2, "0")}</span>
+              <b>${renderInlineCode(section.title)}</b>
+            </div>
+            ${sectionTopics.map(({ topic, topicIndex }) => {
+              const active = topicIndex === state.activeTopicIndex ? " active" : "";
+              const done = state.completedTopicIds.has(topic.id) ? " done" : "";
+              return `
+                <button type="button" class="${active}${done}" data-topic-index="${topicIndex}">
+                  <span class="toc-num">${String(topicIndex + 1).padStart(2, "0")}</span>
+                  <span class="toc-title">${renderInlineCode(topic.title)}</span>
+                </button>
+              `;
+            }).join("")}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderLesson() {
+      const topic = topics[state.activeTopicIndex];
+      const section = sectionById(topic.section);
+      const done = state.completedTopicIds.has(topic.id);
+      const tags = [levelLabel(topic.level), ...topic.tags.map(tagLabel)];
+      els.content.innerHTML = `
+        <header class="lesson-header">
+          <div class="lesson-kicker">${escapeHtml(section.title)} · 第 ${state.activeTopicIndex + 1} / ${topics.length} 课</div>
+          <h2>${renderInlineCode(topic.title)}</h2>
+          <p>${renderInlineCode(section.summary)}</p>
+          <div class="topic-meta">
+            ${tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}
+          </div>
+        </header>
+
+        <section class="compare-grid" aria-label="代码对比">
+          <div class="code-card">
+            <div class="code-head">
+              <span class="lang-js">JavaScript / TypeScript</span>
+            </div>
+            <pre><code class="language-javascript">${escapeHtml(topic.jsCode)}</code></pre>
+          </div>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="lang-go">Go</span>
+            </div>
+            <pre><code class="language-go">${escapeHtml(topic.goCode)}</code></pre>
+          </div>
+        </section>
+
+        <section class="notes" aria-label="课程解释">
+          <div class="note"><b>这节课在讲什么</b><p>${renderInlineCode(topic.difference)}</p></div>
+          <div class="note"><b>举个例子</b><p>${renderInlineCode(exampleText(topic))}</p></div>
+          <div class="note"><b>实际写代码时怎么判断</b><p>${renderInlineCode(topic.advice)} ${renderInlineCode(topic.ecosystemNote)}</p></div>
+        </section>
+
+        <footer class="lesson-actions">
+          <button class="btn" type="button" data-prev ${state.activeTopicIndex === 0 ? "disabled" : ""}>上一课</button>
+          <button class="btn primary ${done ? "completed" : ""}" type="button" data-complete-current>
+            ${done ? "已完成" : "标记完成"}
+          </button>
+          <button class="btn" type="button" data-next ${state.activeTopicIndex === topics.length - 1 ? "disabled" : ""}>下一课</button>
+        </footer>
+      `;
+      highlightCodeBlocks();
+    }
+
+    function highlightCodeBlocks() {
+      if (!window.hljs) return;
+      document.querySelectorAll("pre code").forEach(block => {
+        block.removeAttribute("data-highlighted");
+        window.hljs.highlightElement(block);
+      });
+    }
+
+    function renderProgress() {
+      const done = state.completedTopicIds.size;
+      const total = topics.length;
+      els.courseProgress.textContent = `${done} / ${total} 已完成`;
+    }
+
+    function render() {
+      renderLesson();
+      renderToc();
+      renderProgress();
+    }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => els.toast.classList.remove("show"), 1300);
+    }
+
+    function setActiveTopic(index, shouldScroll = true) {
+      state.activeTopicIndex = Math.max(0, Math.min(index, topics.length - 1));
+      history.replaceState(null, "", `#${topics[state.activeTopicIndex].id}`);
+      render();
+      if (shouldScroll) window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    const hashTopicIndex = topics.findIndex(topic => `#${topic.id}` === window.location.hash);
+    if (hashTopicIndex >= 0) state.activeTopicIndex = hashTopicIndex;
+    render();
+    window.addEventListener("load", highlightCodeBlocks);
+
+    document.addEventListener("click", async event => {
+      const topicButton = event.target.closest("[data-topic-index]");
+      if (topicButton) {
+        setActiveTopic(Number(topicButton.dataset.topicIndex));
+        return;
+      }
+
+      const complete = event.target.closest("[data-complete-current]");
+      if (complete) {
+        const id = topics[state.activeTopicIndex].id;
+        if (state.completedTopicIds.has(id)) {
+          state.completedTopicIds.delete(id);
+        } else {
+          state.completedTopicIds.add(id);
+        }
+        saveCompleted();
+        render();
+        return;
+      }
+
+      if (event.target.closest("[data-prev]")) {
+        setActiveTopic(state.activeTopicIndex - 1);
+        return;
+      }
+
+      if (event.target.closest("[data-next]")) {
+        setActiveTopic(state.activeTopicIndex + 1);
+        return;
+      }
+
+    });
+  </script>
+</body>
+</html>

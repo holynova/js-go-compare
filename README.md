@@ -6,3 +6,10 @@
 
 - Repo: https://github.com/holynova/js-go-compare
 - Pages: https://holynova.github.io/js-go-compare/
+
+## Demo 分享卡片
+
+[![对比学习编程语言 Demo 分享卡片：包含项目介绍与二维码](assets/demo-share-card.png)](https://holynova.github.io/js-go-compare/)
+
+移动端友好的在线 Demo：JavaScript 和 Go 对比学习网站 扫码或点击卡片打开：<https://holynova.github.io/js-go-compare/>
+

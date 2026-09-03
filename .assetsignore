@@ -1,0 +1,8 @@
+README.md
+package.json
+package-lock.json
+screenshot.png
+wrangler.toml
+.assetsignore
+.git/
+.github/

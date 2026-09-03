@@ -4,5 +4,7 @@ package-lock.json
 screenshot.png
 wrangler.toml
 .assetsignore
+.gitignore
+.wrangler/
 .git/
 .github/
